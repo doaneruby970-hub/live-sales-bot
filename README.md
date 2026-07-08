@@ -1,35 +1,35 @@
 # Live Sales Bot
 
-基于 DeepSeek 大模型的 AI 直播带货机器人，支持文字互动和语音合成播报，可接入 TikTok 直播间实时弹幕，实现全自动无人值守直播带货。
+An AI-powered live-streaming sales bot based on the DeepSeek large language model. Supports text interaction and speech synthesis broadcasting, with TikTok live room real-time comments integration, enabling fully automated unattended live-streaming sales.
 
-## 功能特性
+## Features
 
-- **双模式运行**：无人提问时自动吆喝推销（随机选题 + 间隔控制），有人提问时立即切换为问答模式回复弹幕
-- **DeepSeek API 驱动**：所有自然语言生成由 DeepSeek 大模型完成，支持中文和英文输出
-- **RAG 知识库检索**：基于 LangChain + Chroma 向量数据库 + HuggingFace Embeddings，从本地产品资料文档中检索相关上下文，提升回复准确度
-- **本地方言合成 (TTS)**：通过 CosyVoice 本地 API（端口 50000）将文字合成为语音，支持零样本音色克隆（需提供参考音频 `my_voice.wav`）
-- **中英翻译流水线**：中文内容生成后自动通过 Google Translator 翻译为英文，再送入 CosyVoice 合成英文语音播报
-- **TikTok 直播间接入**：通过 `TikTokLive` 库实时监听指定 TikTok 直播间的弹幕评论，自动提取后交由机器人处理
-- **麦克风语音输入**：支持通过麦克风 + Google 语音识别将观众口头提问转为文字（`deepseek ai.py`）
-- **防复读机制**：基于 `SequenceMatcher` 检测最近话术相似度，重复率超过阈值自动触发改写
-- **智能文本截断**：中文输出自动在标点处截断至指定字数，确保语音播报不被打断（默认 70 字）
-- **CTA 引流控制**：每隔 N 句自动插入粉丝群引流文案（可配置间隔），CTA 文案预留空间确保不被截断
-- **弹幕降噪过滤**：过滤无意义弹幕（纯数字、单个字符、刷屏重复内容），支持去重窗口
-- **快速回复匹配**：对常见问题（价格、防水、材质、机芯、发货、售后）预设话术，秒回不经过大模型
-- **打断机制**：检测到新弹幕时立即停止当前语音播放，清空待播队列，优先回复提问
+- **Dual-mode operation**: When no one is asking questions, auto-hype sales pitches (random topic selection + interval control); when a question comes in, immediately switch to Q&A mode to reply to comments
+- **DeepSeek API driven**: All natural language generation is handled by the DeepSeek LLM, supporting both Chinese and English output
+- **RAG knowledge base retrieval**: Based on LangChain + Chroma vector database + HuggingFace Embeddings, retrieves relevant context from local product documentation to improve response accuracy
+- **Local dialect synthesis (TTS)**: Converts text to speech via the CosyVoice local API (port 50000), supporting zero-shot voice cloning (requires a reference audio file `my_voice.wav`)
+- **Chinese-English translation pipeline**: Chinese content is automatically translated to English via Google Translator, then fed into CosyVoice for English speech synthesis
+- **TikTok live room integration**: Monitors comments in a specified TikTok live room in real time via the `TikTokLive` library; automatically extracts and passes comments to the bot for processing
+- **Microphone voice input**: Supports converting spoken questions from viewers into text via microphone + Google Speech Recognition (`deepseek ai.py`)
+- **Anti-repetition mechanism**: Uses `SequenceMatcher` to detect similarity in recent sales pitches; triggers a rewrite when the repetition rate exceeds the threshold
+- **Smart text truncation**: Chinese output is automatically truncated at punctuation to a specified character count, ensuring speech playback is not cut off mid-sentence (default: 70 characters)
+- **CTA (Call-to-Action) injection**: Automatically inserts fan-group traffic-driving copy every N sentences (configurable interval); CTA text reserves space to avoid truncation
+- **Comment noise filtering**: Filters meaningless comments (pure numbers, single characters, spam duplicates), with a deduplication window
+- **Quick reply matching**: Preset responses for common questions (price, waterproofing, material, movement, shipping, after-sales), answered instantly without going through the LLM
+- **Interrupt mechanism**: Upon detecting a new comment, immediately stops current audio playback, clears the pending playback queue, and prioritizes answering the question
 
-## 环境要求
+## Requirements
 
 - Python 3.9+
-- CosyVoice 本地 TTS 服务（运行在 `127.0.0.1:50000`，需自行部署）
-- 参考音频文件 `my_voice.wav`（用于 CosyVoice 音色克隆）
+- CosyVoice local TTS service (running at `127.0.0.1:50000`; must be deployed separately)
+- Reference audio file `my_voice.wav` (for CosyVoice voice cloning)
 - DeepSeek API Key
-- （可选）TikTok 目标直播间用户名
-- （可选）用于麦克风输入的 PyAudio 依赖
+- (Optional) TikTok target live room username
+- (Optional) PyAudio dependencies for microphone input
 
-### 依赖库
+### Dependencies
 
-核心依赖：
+Core dependencies:
 ```
 openai>=1.0.0
 langchain>=0.2.0
@@ -45,135 +45,135 @@ requests
 deep-translator
 ```
 
-可选依赖（按需安装）：
+Optional dependencies (install as needed):
 ```
-TikTokLive          # TikTok 弹幕监听
-SpeechRecognition   # 麦克风语音输入
-pyaudio             # 麦克风音频采集
+TikTokLive          # TikTok comment monitoring
+SpeechRecognition   # Microphone voice input
+pyaudio             # Microphone audio capture
 ```
 
-## 安装
+## Installation
 
 ```bash
 git clone https://github.com/doaneruby970-hub/live-sales-bot.git
 cd live-sales-bot
 pip install openai langchain langchain-community langchain-openai langchain-chroma langchain-huggingface langchain-text-splitters chromadb sentence-transformers pygame requests deep-translator
 
-# 如需 TikTok 接入
+# For TikTok integration
 pip install TikTokLive
 
-# 如需麦克风输入
+# For microphone input
 pip install SpeechRecognition pyaudio
 ```
 
-## 配置
+## Configuration
 
-1. 复制并编辑环境变量文件：
+1. Copy and edit the environment variable file:
 ```bash
 cp .env.example .env
 ```
 
-2. 编辑 `.env`，填入你的配置：
+2. Edit `.env` and fill in your configuration:
 ```
 DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 CUSTOM_BASE_URL=https://api.deepseek.com
 CUSTOM_MODEL=deepseek-chat
 ```
 
-3. （TikTok 模式）设置目标直播间：
+3. (TikTok mode) Set the target live room:
 ```bash
 # Windows PowerShell
-setx TIKTOK_TARGET_USERNAME "@目标用户名"
+setx TIKTOK_TARGET_USERNAME "@target_username"
 ```
 
-4. 准备产品知识库文件。项目中用到两个文件名，按实际需要创建其一或全部：
-   - `my_watch_data.txt` — 供 `auto_live_bot.py`、`auto_live_voice.py`、`yumagpt.py`、`gpt111.py`、`rag_sales_bot.py` 使用
-   - `knowledge_base.txt` — 供 `auto_live_english.py`、`V6.0ultimateversion..py`、`tiktok000111.py` 使用
+4. Prepare the product knowledge base files. The project references two filenames; create one or both as needed:
+   - `my_watch_data.txt` — used by `auto_live_bot.py`, `auto_live_voice.py`, `yumagpt.py`, `gpt111.py`, `rag_sales_bot.py`
+   - `knowledge_base.txt` — used by `auto_live_english.py`, `V6.0ultimateversion..py`, `tiktok000111.py`
 
-   如果文件不存在，RAG 版本会自动创建包含默认内容的文件。
+   If the file does not exist, the RAG versions will auto-create it with default content.
 
-5. 准备 CosyVoice 参考音频：
-   - 提供 `my_voice.wav` 文件作为音色克隆的参考音频
-   - 同时需在代码中配置 `REF_TEXT` 变量，使其与参考音频的实际内容一致
-   - 默认参考文本："人总是要死的，但死的意义有不同。中国古时候有个文学家叫做司马迁的说过：人固有一死，或重于泰山，或轻于鸿毛"
+5. Prepare the CosyVoice reference audio:
+   - Provide `my_voice.wav` as the reference audio for voice cloning
+   - Also configure the `REF_TEXT` variable in the code so that it matches the actual content of the reference audio
+   - Default reference text: "人总是要死的，但死的意义有不同。中国古时候有个文学家叫做司马迁的说过：人固有一死，或重于泰山，或轻于鸿毛"
 
-6. 启动 CosyVoice 本地 TTS 服务，确保其运行在 `http://127.0.0.1:50000/inference_zero_shot`
+6. Start the CosyVoice local TTS service, ensuring it runs at `http://127.0.0.1:50000/inference_zero_shot`
 
-## 使用方式
+## Usage
 
-项目包含多个版本，从简单到完整逐级演进，按需选择：
+The project includes multiple versions, evolving from simple to full-featured. Choose as needed:
 
-### 文字版直播机器人（纯 CLI，无语音）
+### Text-mode live bot (pure CLI, no voice)
 
 ```bash
-python rag_sales_bot.py          # RAG 知识库问答版
-python deepseek spell ai.py      # 名表销售话术版（有完整销售策略 prompt）
-python auto_live_bot.py          # 全自动带货版（自动吆喝 + 回复弹幕）
+python rag_sales_bot.py          # RAG knowledge base Q&A version
+python deepseek spell ai.py      # Luxury watch sales pitch version (with full sales strategy prompt)
+python auto_live_bot.py          # Fully automated sales version (auto hype + reply to comments)
 ```
 
-以上脚本运行后在终端输入弹幕文字，按回车发送。输入 `exit` 或 `退出` 停止。
+After running the above scripts, type a comment in the terminal and press Enter to send. Type `exit` or `quit` to stop.
 
-### 语音版直播机器人（TTS 播报）
+### Voice-mode live bot (TTS broadcast)
 
 ```bash
-python auto_live_voice.py        # 多线程 TTS 版，支持打断、清队列
-python yumagpt.py                # 中文生成 -> 英文翻译 -> 英文 TTS，兼容旧版 CosyVoice API
-python gpt111.py                 # 同上，简化版，每句说完休息 5 秒
-python auto_live_english.py      # 带 RAG + 防复读 + CTA 控制的完整版
-python V6.0ultimateversion..py   # 带 RAG + 防复读 + CTA + TikTok 版（stdin 模式）
+python auto_live_voice.py        # Multi-threaded TTS version, supports interrupt and queue clearing
+python yumagpt.py                # Chinese generation → English translation → English TTS, compatible with older CosyVoice API
+python gpt111.py                 # Same as above, simplified version; rests 5 seconds after each sentence
+python auto_live_english.py      # Full version with RAG + anti-repetition + CTA control
+python V6.0ultimateversion..py   # Version with RAG + anti-repetition + CTA + TikTok (stdin mode)
 ```
 
-运行前确保 CosyVoice 服务已启动，`my_voice.wav` 已就位。
+Ensure the CosyVoice service is running and `my_voice.wav` is in place before running.
 
-### 麦克风语音输入版
+### Microphone voice input version
 
 ```bash
-python deepseek ai.py            # 麦克风 -> Google STT -> DeepSeek -> 文字输出
+python deepseek ai.py            # Microphone → Google STT → DeepSeek → text output
 ```
 
-对着麦克风说话，程序自动识别并调用 DeepSeek 回复。
+Speak into the microphone; the program automatically recognizes speech and calls DeepSeek for a reply.
 
-### TikTok 直播接入版
+### TikTok live room integration version
 
 ```bash
-python tiktok000111.py           # 监听 TikTok 直播间弹幕 + RAG + TTS 全流程
+python tiktok000111.py           # Monitors TikTok live room comments + RAG + TTS full pipeline
 ```
 
-需先设置环境变量 `TIKTOK_TARGET_USERNAME`。脚本自动连接指定直播间并获取实时弹幕。即使直播间不在线或连接断开，机器人会继续按照话题列表自动讲干货。
+Requires setting the `TIKTOK_TARGET_USERNAME` environment variable first. The script automatically connects to the specified live room and retrieves real-time comments. Even if the live room is offline or the connection drops, the bot continues to deliver content automatically based on its topic list.
 
-### 音频测试工具
+### Audio test tool
 
 ```bash
-python listen.py                 # 播放 my_voice.wav 测试音频是否正常
+python listen.py                 # Plays my_voice.wav to test whether audio is working
 ```
 
-## 架构说明
+## Architecture
 
-各脚本的核心差异：
+Core differences between scripts:
 
-| 脚本 | RAG | TTS | TikTok | 防复读 | CTA控制 | 输入方式 |
+| Script | RAG | TTS | TikTok | Anti-repetition | CTA Control | Input Method |
 |------|-----|-----|--------|--------|---------|----------|
-| `auto_live_bot.py` | 无 | 无 | 无 | 无 | 无 | stdin |
-| `rag_sales_bot.py` | 无 | 无 | 无 | 无 | 无 | stdin |
-| `deepseek spell ai.py` | 无 | 无 | 无 | 无 | 无 | stdin |
-| `deepseek ai.py` | 无 | 无 | 无 | 无 | 无 | 麦克风 |
-| `auto_live_voice.py` | 无 | CosyVoice 中文 | 无 | 无 | 无 | stdin |
-| `yumagpt.py` | 无 | CosyVoice 英文 | 无 | 无 | 无 | stdin |
-| `gpt111.py` | 无 | CosyVoice 英文 | 无 | 无 | 无 | stdin |
-| `auto_live_english.py` | Chroma | CosyVoice 英文 | 无 | 有 | 有 | stdin |
-| `V6.0ultimateversion..py` | Chroma | CosyVoice 英文 | 无 | 无 | 有 | stdin |
-| `tiktok000111.py` | Chroma | CosyVoice 英文 | 有 | 有 | 有 | TikTok + stdin(可选) |
+| `auto_live_bot.py` | No | No | No | No | No | stdin |
+| `rag_sales_bot.py` | No | No | No | No | No | stdin |
+| `deepseek spell ai.py` | No | No | No | No | No | stdin |
+| `deepseek ai.py` | No | No | No | No | No | Mic |
+| `auto_live_voice.py` | No | CosyVoice CN | No | No | No | stdin |
+| `yumagpt.py` | No | CosyVoice EN | No | No | No | stdin |
+| `gpt111.py` | No | CosyVoice EN | No | No | No | stdin |
+| `auto_live_english.py` | Chroma | CosyVoice EN | No | Yes | Yes | stdin |
+| `V6.0ultimateversion..py` | Chroma | CosyVoice EN | No | No | Yes | stdin |
+| `tiktok000111.py` | Chroma | CosyVoice EN | Yes | Yes | Yes | TikTok + stdin (optional) |
 
-所有 RAG 脚本使用相同的技术栈：LangChain + Chroma 向量存储 + `sentence-transformers/all-MiniLM-L6-v2` Embedding 模型 + MMR 检索策略。
+All RAG scripts use the same tech stack: LangChain + Chroma vector store + `sentence-transformers/all-MiniLM-L6-v2` embedding model + MMR retrieval strategy.
 
-## 注意事项
+## Notes
 
-1. **API Key 安全**：不要在代码中硬编码 `DEEPSEEK_API_KEY`，务必通过环境变量或 `.env` 文件管理
-2. **CosyVoice 依赖**：语音版脚本依赖本地运行的 CosyVoice TTS 服务，确保服务已启动且端口 50000 可访问
-3. **参考音频匹配**：`REF_TEXT` 变量必须与 `my_voice.wav` 的实际录音内容完全一致，否则合成效果异常
-4. **代理配置**：如果本机配置了 HTTP 代理，务必设置 `no_proxy=localhost,127.0.0.1,::1` 使 CosyVoice 本地请求绕过代理
-5. **TikTok 限制**：`TikTokLive` 库仅能获取公开直播间的弹幕，目标账号必须正在直播，否则连接失败（脚本会继续以离线模式运行）
-6. **Google 翻译**：`deep_translator` 依赖 Google 翻译服务，国内网络环境下可能需要代理
-7. **Python 版本**：建议 Python 3.9+；`langchain` 系列库版本兼容性较为敏感，如遇导入错误请参考代码中的兼容性导入 fallback 逻辑
-8. **首次运行**：LangChain RAG 脚本首次启动时会下载 `all-MiniLM-L6-v2` 模型（约 90MB），请耐心等待
-9. **产品定位**：各脚本内预设的 prompt 和话术围绕手表销售场景编写（复刻表/工厂源头表），如需其他品类请自行修改 `SYSTEM_PROMPT` 和话题列表
+1. **API Key security**: Never hardcode `DEEPSEEK_API_KEY` in source code; always manage it via environment variables or `.env` file
+2. **CosyVoice dependency**: Voice-mode scripts depend on a locally running CosyVoice TTS service; ensure the service is running and port 50000 is accessible
+3. **Reference audio matching**: The `REF_TEXT` variable must exactly match the actual recorded content of `my_voice.wav`, otherwise synthesis quality will be abnormal
+4. **Proxy configuration**: If an HTTP proxy is configured on the machine, be sure to set `no_proxy=localhost,127.0.0.1,::1` so that local CosyVoice requests bypass the proxy
+5. **TikTok limitations**: The `TikTokLive` library can only retrieve comments from public live rooms; the target account must be currently live streaming, otherwise the connection fails (the script will continue running in offline mode)
+6. **Google Translate**: `deep_translator` relies on the Google Translate service, which may require a proxy in some network environments
+7. **Python version**: Python 3.9+ recommended; `langchain` library version compatibility is fairly sensitive — if you encounter import errors, refer to the compatibility import fallback logic in the code
+8. **First run**: LangChain RAG scripts download the `all-MiniLM-L6-v2` model (~90MB) on first launch; please be patient
+9. **Product positioning**: The preset prompts and sales pitches in each script are written for the watch sales scenario (replica watches / factory-source watches). For other product categories, modify `SYSTEM_PROMPT` and topic lists accordingly
