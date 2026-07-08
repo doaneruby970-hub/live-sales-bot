@@ -55,7 +55,7 @@ pyaudio             # 麦克风音频采集
 ## 安装
 
 ```bash
-git clone https://github.com/yourname/live-sales-bot.git
+git clone https://github.com/doaneruby970-hub/live-sales-bot.git
 cd live-sales-bot
 pip install openai langchain langchain-community langchain-openai langchain-chroma langchain-huggingface langchain-text-splitters chromadb sentence-transformers pygame requests deep-translator
 
