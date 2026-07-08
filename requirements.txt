@@ -1,0 +1,13 @@
+openai>=1.0.0
+requests>=2.31.0
+pygame>=2.5.0
+SpeechRecognition>=3.10.0
+TikTokLive>=6.0.0
+deep-translator>=1.11.4
+langchain>=0.3.0
+langchain-openai>=0.2.0
+langchain-community>=0.3.0
+langchain-chroma>=0.2.0
+langchain-huggingface>=0.1.0
+langchain-text-splitters>=0.3.0
+langchain-core>=0.3.0
